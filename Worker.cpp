@@ -20,13 +20,15 @@ void worker_thread
     
     // seed local reproductibilitate sau perofrmata
     mt19937_64 rng(random_device{}() + thread_id);
-    uniform_int_distribution<int> acc_dist(0, static_cast<int>(bank.size()) - 1);
-    uniform_int_distribution<int> amount_dist(1, max_amount);
+    uniform_int_distribution<int> acc_dist(0, static_cast<int>(bank.size()) - 1); // creere distributii aleatoare pentru alegerea conturilor
+    uniform_int_distribution<int> amount_dist(1, max_amount); // creere  distributie aleatoare pentru sume
 
     int local_successful = 0;
     int local_failed = 0;
-    int progress_interval = ops / 4; // report at 25%, 50%, 75%, 100%
-    if (progress_interval == 0) progress_interval = ops;
+    int progress_interval = ops / 4; // 25%, 50%, 75%, 100%
+
+    if (progress_interval == 0) 
+        progress_interval = ops;
 
     for (int i = 0; i < ops; ++i) 
     {

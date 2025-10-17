@@ -20,8 +20,8 @@ int main(int argc, char** argv)
 	int max_amount = 1000; // suma maxima transferata intr-o operatie
 
     // de schimbat la CoarseGrained pt testare
-	//Bank::Mode mode = Bank::Mode::FineGrained; // un mutex per cont
-	Bank::Mode mode = Bank::Mode::CoarseGrained; // un singur mutex pt toata banca
+	Bank::Mode mode = Bank::Mode::FineGrained; // un mutex per cont
+	//Bank::Mode mode = Bank::Mode::CoarseGrained; // un singur mutex pt toata banca
 
 
     //pt argumente din linia de comanda daca vrei sa modifici parametri impliciti
