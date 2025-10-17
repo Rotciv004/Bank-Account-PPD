@@ -42,17 +42,15 @@ int main(int argc, char** argv)
         mode = (m == "coarse") ? Bank::Mode::CoarseGrained : Bank::Mode::FineGrained;
     }
 
-    cout << "========================================\n";
+    cout << "\n";
     cout << "    BANK TRANSFER SIMULATION\n";
-    cout << "========================================\n";
     cout << "Configuration:\n";
     cout << "  - Accounts: " << n_accounts << "\n";
     cout << "  - Initial balance per account: " << init_balance << "\n";
     cout << "  - Worker threads: " << n_threads << "\n";
     cout << "  - Operations per thread: " << ops_per_thread << "\n";
     cout << "  - Max transfer amount: " << max_amount << "\n";
-    cout << "  - Locking mode: " << (mode == Bank::Mode::FineGrained ? "FineGrained" : "CoarseGrained") << "\n";
-    cout << "========================================\n\n";
+    cout << "  - Locking mode: " << (mode == Bank::Mode::FineGrained ? "FineGrained" : "CoarseGrained") << "\n\n";
 
     cout << "[INIT] Creating bank with " << n_accounts << " accounts...\n";
     Bank bank(n_accounts, init_balance, mode);
@@ -81,7 +79,7 @@ int main(int argc, char** argv)
 
             if (sum != initial_total) 
             {
-                cerr << "[MONITOR] *** INCONSISTENCY DETECTED! *** initial=" << initial_total
+                cerr << "[MONITOR] INCONSISTENCY DETECTED! initial=" << initial_total
                     << " now=" << sum << " (difference=" << (sum - initial_total) << ")\n";
             }
             else 
@@ -109,6 +107,7 @@ int main(int argc, char** argv)
     cout << "\n[WAIT] Waiting for all worker threads to complete...\n";
     for (auto& t : threads) 
         t.join();
+
     cout << "[WAIT] All worker threads completed!\n";
 
 	// oprire thread monitorizare
@@ -121,9 +120,7 @@ int main(int argc, char** argv)
     auto t1 = chrono::steady_clock::now();
     auto ms = chrono::duration_cast<chrono::milliseconds>(t1 - t0).count();
 
-    cout << "\n========================================\n";
-    cout << "           FINAL RESULTS\n";
-    cout << "========================================\n";
+    cout << "\n\n           FINAL RESULTS\n";
     
     long long final_total = bank.total_balance();
     long long total_ops = successful.load() + failed.load();
@@ -148,10 +145,8 @@ int main(int argc, char** argv)
         cout << "\n*** ERROR! ***\n";
         cout << "BUG DETECTED: Total balance changed by " << (final_total - initial_total) << "!\n";
         cout << "The bank is INCONSISTENT!\n";
-        cout << "\nAccount balances dump:\n" << bank.dump_balances() << "\n";
+        cout << "\nAccount balances dump:\n" << bank.dump_balances() << "\n\n";
     }
-    
-    cout << "========================================\n";
 
     return 0;
 }
