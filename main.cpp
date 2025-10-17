@@ -43,19 +43,19 @@ int main(int argc, char** argv)
     }
 
     cout << "\n";
-    cout << "    BANK TRANSFER SIMULATION\n";
+    cout << "BANK TRANSFER SIMULATION\n";
     cout << "Configuration:\n";
-    cout << "  - Accounts: " << n_accounts << "\n";
-    cout << "  - Initial balance per account: " << init_balance << "\n";
-    cout << "  - Worker threads: " << n_threads << "\n";
-    cout << "  - Operations per thread: " << ops_per_thread << "\n";
-    cout << "  - Max transfer amount: " << max_amount << "\n";
-    cout << "  - Locking mode: " << (mode == Bank::Mode::FineGrained ? "FineGrained" : "CoarseGrained") << "\n\n";
+    cout << "- Accounts: " << n_accounts << "\n";
+    cout << "- Initial balance per account: " << init_balance << "\n";
+    cout << "- Worker threads: " << n_threads << "\n";
+    cout << "- Operations per thread: " << ops_per_thread << "\n";
+    cout << "- Max transfer amount: " << max_amount << "\n";
+    cout << "- Locking mode: " << (mode == Bank::Mode::FineGrained ? "FineGrained" : "CoarseGrained") << "\n\n";
 
-    cout << "[INIT] Creating bank with " << n_accounts << " accounts...\n";
+    cout << "main.cpp: [INIT]-> Creating bank with " << n_accounts << " accounts...\n";
     Bank bank(n_accounts, init_balance, mode);
     long long initial_total = bank.total_balance();
-    cout << "[INIT] Bank initialized. Total balance: " << initial_total << "\n";
+    cout << "main.cpp: [INIT]-> Bank initialized. Total balance: " << initial_total << "\n";
 
     atomic<long long> successful{ 0 }, failed{ 0 };
     vector<thread> threads;
@@ -63,8 +63,8 @@ int main(int argc, char** argv)
 	// thread de monitorizare periodica
     atomic<bool> done{ false };
     
-    cout << "\n[MONITOR] Starting monitoring thread...\n";
-    thread monitor([&]() 
+    cout << "\nmain.cpp: [MONITOR]-> Starting monitoring thread...\n";
+    thread monitor([&]() // pentru monitorizare si pentru a nu avea foaete multe mesaje pe parcurs
         {
         int checks = 0;
         while (!done.load()) 
@@ -79,12 +79,13 @@ int main(int argc, char** argv)
 
             if (sum != initial_total) 
             {
-                cerr << "[MONITOR] INCONSISTENCY DETECTED! initial=" << initial_total
+                // cerr pentru mesaje in timp real in caz de eroare
+                cerr << "main.cpp: [MONITOR]-> INCONSISTENCY DETECTED! initial=" << initial_total
                     << " now=" << sum << " (difference=" << (sum - initial_total) << ")\n";
             }
             else 
             {
-                cout << "[MONITOR] Check #" << checks << " - Balance OK: " << sum 
+                cout << "main.cpp: [MONITOR]-> Check #" << checks << " - Balance OK: " << sum 
                      << " | Operations: " << total_ops << " (Success: " << current_successful 
                      << ", Failed: " << current_failed << ")\n";
             }
@@ -92,57 +93,57 @@ int main(int argc, char** argv)
         });
 
     // pornire temporizator
-    cout << "\n[START] Launching " << n_threads << " worker threads...\n";
+    cout << "\nmain.cpp: [START]-> Launching " << n_threads << " worker threads...\n";
     auto t0 = chrono::steady_clock::now();
 
 	// lansare threaduri de lucru
     for (int i = 0; i < n_threads; ++i)
     {
         threads.emplace_back(worker_thread, ref(bank), i, ops_per_thread, max_amount, ref(successful), ref(failed));
-        cout << "[START] Worker thread #" << i << " launched.\n";
+        cout << "main.cpp: [START]-> Worker thread #" << i << " launched.\n";
     }
-    cout << "[START] All worker threads are now running!\n";
+    cout << "main.cpp: [START]-> All worker threads are now running!\n";
 
 	// asteptare threaduri de lucru
-    cout << "\n[WAIT] Waiting for all worker threads to complete...\n";
+    cout << "\nmain.cpp: [WAIT]-> Waiting for all worker threads to complete...\n";
     for (auto& t : threads) 
         t.join();
 
-    cout << "[WAIT] All worker threads completed!\n";
+    cout << "main.cpp: [WAIT]-> All worker threads completed!\n";
 
 	// oprire thread monitorizare
     done = true;
-    cout << "[MONITOR] Stopping monitoring thread...\n";
+    cout << "main.cpp: [MONITOR]-> Stopping monitoring thread...\n";
 	// afisare rezultat final
     monitor.join();
-    cout << "[MONITOR] Monitoring thread stopped.\n";
+    cout << "main.cpp: [MONITOR]-> Monitoring thread stopped.\n";
 
     auto t1 = chrono::steady_clock::now();
     auto ms = chrono::duration_cast<chrono::milliseconds>(t1 - t0).count();
 
-    cout << "\n\n           FINAL RESULTS\n";
+    cout << "\n\nFINAL RESULTS\n";
     
     long long final_total = bank.total_balance();
     long long total_ops = successful.load() + failed.load();
     double success_rate = (total_ops > 0) ? (100.0 * successful.load() / total_ops) : 0.0;
 
-    cout << "[RESULT] Execution time: " << ms << " ms\n";
-    cout << "[RESULT] Total operations: " << total_ops << "\n";
-    cout << "[RESULT]   - Successful transfers: " << successful.load() << " (" << success_rate << "%)\n";
-    cout << "[RESULT]   - Failed transfers: " << failed.load() << " (" << (100.0 - success_rate) << "%)\n";
-    cout << "[RESULT] Throughput: " << (total_ops * 1000.0 / ms) << " operations/second\n";
-    cout << "\n[VERIFICATION] Initial total balance: " << initial_total << "\n";
-    cout << "[VERIFICATION] Final total balance:   " << final_total << "\n";
+    cout << "main.cpp: [RESULT]-> Execution time: " << ms << " ms\n";
+    cout << "main.cpp: [RESULT]-> Total operations: " << total_ops << "\n";
+    cout << "main.cpp: [RESULT]-> Successful transfers: " << successful.load() << " (" << success_rate << "%)\n";
+    cout << "main.cpp: [RESULT]-> Failed transfers: " << failed.load() << " (" << (100.0 - success_rate) << "%)\n";
+    cout << "main.cpp: [RESULT]-> Throughput: " << (total_ops * 1000.0 / ms) << " operations/second\n";
+    cout << "\nmain.cpp: [VERIFICATION]-> Initial total balance: " << initial_total << "\n";
+    cout << "main.cpp: [VERIFICATION]-> Final total balance:   " << final_total << "\n";
 
     if (initial_total == final_total)
     {
-        cout << "\n*** SUCCESS! ***\n";
+        cout << "\nSUCCESS!\n";
         cout << "Total balance invariant preserved.\n";
         cout << "The bank is CONSISTENT!\n";
     }
     else 
     {
-        cout << "\n*** ERROR! ***\n";
+        cout << "\nERROR!\n";
         cout << "BUG DETECTED: Total balance changed by " << (final_total - initial_total) << "!\n";
         cout << "The bank is INCONSISTENT!\n";
         cout << "\nAccount balances dump:\n" << bank.dump_balances() << "\n\n";

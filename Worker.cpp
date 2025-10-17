@@ -16,7 +16,7 @@ void worker_thread
     atomic<long long>& failed
 )
 {
-    cout << "[WORKER " << thread_id << "] Starting work - " << ops << " operations to perform.\n";
+    cout << "Worker.cpp/h: [WORKER " << thread_id << "]<-> Starting work - " << ops << " operations to perform.\n";
     
     // seed local reproductibilitate sau perofrmata
     mt19937_64 rng(random_device{}() + thread_id);
@@ -55,13 +55,13 @@ void worker_thread
         if ((i + 1) % progress_interval == 0)
         {
             int percent = ((i + 1) * 100) / ops;
-            cout << "[WORKER " << thread_id << "] Progress: " << percent 
+            cout << "Worker.cpp/h: [WORKER " << thread_id << "]<-> Progress: " << percent 
                  << "% (" << (i + 1) << "/" << ops << " ops)"
                  << " - Local stats: " << local_successful << " success, " 
                  << local_failed << " failed\n";
         }
     }
     
-    cout << "[WORKER " << thread_id << "] Completed! Total: " << local_successful 
+    cout << "Worker.cpp/h: [WORKER " << thread_id << "]<-> Completed! Total: " << local_successful 
          << " successful, " << local_failed << " failed transfers.\n";
 }
