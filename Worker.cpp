@@ -16,7 +16,10 @@ void worker_thread
     atomic<long long>& failed
 )
 {
+    // DEBUGGING POINT: Thread execution starts here
+    cout << "\n*** THREAD #" << thread_id << " EXECUTION STARTED ***\n";
     cout << "Worker.cpp/h: [WORKER " << thread_id << "]<-> Starting work - " << ops << " operations to perform.\n";
+    cout << "Worker.cpp/h: [DEBUG]<-> Thread #" << thread_id << " initial bank state:\n" << bank.dump_balances() << "\n";
     
     // seed local reproductibilitate sau perofrmata
     mt19937_64 rng(random_device{}() + thread_id);
@@ -49,6 +52,14 @@ void worker_thread
         {
             ++failed;
             ++local_failed;
+        }
+
+        if (i < 5) 
+        {
+            cout << "Worker.cpp/h: [DEBUG]<-> Thread #" << thread_id << " Operation #" << (i+1) 
+                 << ": Transfer " << amount << " from account " << from 
+                 << " to account " << to << " - " 
+                 << (local_successful > 0 ? "SUCCESS" : "FAILED") << "\n";
         }
 
         // Progress report

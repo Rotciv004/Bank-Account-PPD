@@ -26,7 +26,6 @@ int main(int argc, char** argv)
 
     //pt argumente din linia de comanda daca vrei sa modifici parametri impliciti
     // BankAccountPPD 20 8 200000 CoarseGrained
-	// nu merge ca nu o recunoaste windows-ul ca si comanda si daca o pun ca si comanda in windows variable de mediu nu merge nu stiu de ce
     if (argc >= 2) 
         n_threads = stoi(argv[1]);
 
@@ -99,9 +98,22 @@ int main(int argc, char** argv)
 	// lansare threaduri de lucru
     for (int i = 0; i < n_threads; ++i)
     {
+        // DEBUGGING POINT
+        cout << "\nDEBUGGING POINT: About to create thread #" << i << " ===\n";
+        cout << "main.cpp: [DEBUG]-> Current bank balances:\n" << bank.dump_balances() << "\n";
+        cout << "main.cpp: [DEBUG]-> Current successful operations: " << successful.load() << "\n";
+        cout << "main.cpp: [DEBUG]-> Current failed operations: " << failed.load() << "\n";
+        cout << "main.cpp: [DEBUG]-> Press any key to continue to next thread creation...\n";
+        
+        cin.get();
+        
         threads.emplace_back(worker_thread, ref(bank), i, ops_per_thread, max_amount, ref(successful), ref(failed));
         cout << "main.cpp: [START]-> Worker thread #" << i << " launched.\n";
+        
+        cout << "main.cpp: [DEBUG]-> Thread #" << i << " created successfully.\n";
+        cout << "main.cpp: [DEBUG]-> Total threads created so far: " << (i + 1) << "\n\n";
     }
+
     cout << "main.cpp: [START]-> All worker threads are now running!\n";
 
 	// asteptare threaduri de lucru
